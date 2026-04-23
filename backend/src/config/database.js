@@ -11,6 +11,8 @@ const pool = mysql.createPool({
   connectionLimit: 10,
   queueLimit: 0,
   charset: 'utf8mb4',
+  collation: 'utf8mb4_unicode_ci',
+  initCommand: 'SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci',
 });
 
 async function query(sql, params) {

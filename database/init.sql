@@ -1,7 +1,12 @@
+-- 设置客户端连接字符集
+SET NAMES utf8mb4;
+SET CHARACTER SET utf8mb4;
+
 -- 创建数据库
 CREATE DATABASE IF NOT EXISTS ecommerce DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 USE ecommerce;
+ALTER DATABASE ecommerce CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 -- 分类表
 CREATE TABLE IF NOT EXISTS categories (
