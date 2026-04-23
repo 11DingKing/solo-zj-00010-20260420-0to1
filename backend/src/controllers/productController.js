@@ -5,7 +5,32 @@ const { getConnection } = require('../config/database');
 
 const CACHE_TTL = 600;
 
+function isValidPositiveNumber(val) {
+  if (val === undefined || val === null || val === '') {
+    return false;
+  }
+  const num = typeof val === 'string' ? parseInt(val, 10) : val;
+  return typeof num === 'number' && !isNaN(num) && num > 0;
+}
+
+function isValidStatus(val) {
+  if (val === undefined || val === null || val === '') {
+    return false;
+  }
+  const num = typeof val === 'string' ? parseInt(val, 10) : val;
+  return typeof num === 'number' && !isNaN(num) && (num === 0 || num === 1);
+}
+
+function isValidKeyword(val) {
+  if (val === undefined || val === null) {
+    return false;
+  }
+  return typeof val === 'string' && val.trim().length > 0;
+}
+
 async function getProductList(params) {
+  console.log('[DEBUG] getProductList params:', JSON.stringify(params, null, 2));
+  
   const page = parseInt(params.page) || 1;
   const pageSize = parseInt(params.page_size) || 20;
   const offset = (page - 1) * pageSize;
@@ -13,25 +38,41 @@ async function getProductList(params) {
   const whereConditions = ['1=1'];
   const queryParams = [];
   
-  if (params.category_id && params.category_id !== '') {
+  if (isValidPositiveNumber(params.category_id)) {
+    const catId = typeof params.category_id === 'string' 
+      ? parseInt(params.category_id, 10) 
+      : params.category_id;
+    console.log('[DEBUG] Adding category_id filter:', catId);
     whereConditions.push('p.category_id = ?');
-    queryParams.push(params.category_id);
+    queryParams.push(catId);
   }
   
-  if (params.brand_id && params.brand_id !== '') {
+  if (isValidPositiveNumber(params.brand_id)) {
+    const bId = typeof params.brand_id === 'string' 
+      ? parseInt(params.brand_id, 10) 
+      : params.brand_id;
+    console.log('[DEBUG] Adding brand_id filter:', bId);
     whereConditions.push('p.brand_id = ?');
-    queryParams.push(params.brand_id);
+    queryParams.push(bId);
   }
   
-  if (params.status !== undefined && params.status !== null && params.status !== '') {
+  if (isValidStatus(params.status)) {
+    const status = typeof params.status === 'string' 
+      ? parseInt(params.status, 10) 
+      : params.status;
+    console.log('[DEBUG] Adding status filter:', status);
     whereConditions.push('p.status = ?');
-    queryParams.push(parseInt(params.status));
+    queryParams.push(status);
   }
   
-  if (params.keyword && params.keyword.trim()) {
+  if (isValidKeyword(params.keyword)) {
+    console.log('[DEBUG] Adding keyword filter:', params.keyword);
     whereConditions.push('p.name LIKE ?');
     queryParams.push(`%${params.keyword.trim()}%`);
   }
+  
+  console.log('[DEBUG] whereClause:', whereConditions.join(' AND '));
+  console.log('[DEBUG] queryParams:', queryParams);
   
   const whereClause = whereConditions.join(' AND ');
   
@@ -64,7 +105,7 @@ async function getProductList(params) {
     LIMIT ? OFFSET ?
   `;
   
-  const dataParams = [...queryParams, pageSize, offset];
+  const dataParams = [...queryParams, parseInt(pageSize), parseInt(offset)];
   const list = await db.query(dataQuery, dataParams);
   
   const processedList = list.map(item => ({

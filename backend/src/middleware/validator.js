@@ -259,22 +259,61 @@ const schemas = {
       'number.positive': '每页数量必须是正数',
       'number.max': '每页数量最多100条',
     }),
-    category_id: Joi.number().integer().positive().allow(null).allow('').messages({
-      'number.base': '分类ID必须是数字',
-      'number.integer': '分类ID必须是整数',
-      'number.positive': '分类ID必须是正数',
-    }),
-    brand_id: Joi.number().integer().positive().allow(null).allow('').messages({
-      'number.base': '品牌ID必须是数字',
-      'number.integer': '品牌ID必须是整数',
-      'number.positive': '品牌ID必须是正数',
-    }),
-    status: Joi.number().integer().valid(0, 1).allow(null).allow('').allow(undefined).messages({
-      'number.base': '状态必须是数字',
-      'number.integer': '状态必须是整数',
-      'any.only': '状态只能是0或1',
-    }),
-    keyword: Joi.string().allow('').allow(null).messages({
+    category_id: Joi.alternatives()
+      .try(
+        Joi.number().integer().positive(),
+        Joi.string().pattern(/^[1-9]\d*$/)
+      )
+      .allow(null)
+      .allow('')
+      .allow(undefined)
+      .custom((value) => {
+        if (value === '' || value === null || value === undefined) {
+          return undefined;
+        }
+        if (typeof value === 'string') {
+          const num = parseInt(value, 10);
+          return !isNaN(num) && num > 0 ? num : undefined;
+        }
+        return value;
+      }),
+    brand_id: Joi.alternatives()
+      .try(
+        Joi.number().integer().positive(),
+        Joi.string().pattern(/^[1-9]\d*$/)
+      )
+      .allow(null)
+      .allow('')
+      .allow(undefined)
+      .custom((value) => {
+        if (value === '' || value === null || value === undefined) {
+          return undefined;
+        }
+        if (typeof value === 'string') {
+          const num = parseInt(value, 10);
+          return !isNaN(num) && num > 0 ? num : undefined;
+        }
+        return value;
+      }),
+    status: Joi.alternatives()
+      .try(
+        Joi.number().integer().valid(0, 1),
+        Joi.string().valid('0', '1')
+      )
+      .allow(null)
+      .allow('')
+      .allow(undefined)
+      .custom((value) => {
+        if (value === '' || value === null || value === undefined) {
+          return undefined;
+        }
+        if (typeof value === 'string') {
+          const num = parseInt(value, 10);
+          return !isNaN(num) && (num === 0 || num === 1) ? num : undefined;
+        }
+        return value;
+      }),
+    keyword: Joi.string().allow('').allow(null).allow(undefined).messages({
       'string.base': '搜索关键词必须是字符串',
     }),
   }),
