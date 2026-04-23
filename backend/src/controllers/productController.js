@@ -23,7 +23,7 @@ async function getProductList(params) {
     queryParams.push(params.brand_id);
   }
   
-  if (params.status !== null && params.status !== '') {
+  if (params.status !== undefined && params.status !== null && params.status !== '') {
     whereConditions.push('p.status = ?');
     queryParams.push(parseInt(params.status));
   }

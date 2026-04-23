@@ -269,7 +269,7 @@ const schemas = {
       'number.integer': '品牌ID必须是整数',
       'number.positive': '品牌ID必须是正数',
     }),
-    status: Joi.number().integer().valid(0, 1).allow(null).allow('').messages({
+    status: Joi.number().integer().valid(0, 1).allow(null).allow('').allow(undefined).messages({
       'number.base': '状态必须是数字',
       'number.integer': '状态必须是整数',
       'any.only': '状态只能是0或1',
