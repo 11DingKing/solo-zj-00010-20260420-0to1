@@ -29,8 +29,6 @@ function isValidKeyword(val) {
 }
 
 async function getProductList(params) {
-  console.log('[DEBUG] getProductList params:', JSON.stringify(params, null, 2));
-  
   const page = parseInt(params.page) || 1;
   const pageSize = parseInt(params.page_size) || 20;
   const offset = (page - 1) * pageSize;
@@ -42,7 +40,6 @@ async function getProductList(params) {
     const catId = typeof params.category_id === 'string' 
       ? parseInt(params.category_id, 10) 
       : params.category_id;
-    console.log('[DEBUG] Adding category_id filter:', catId);
     whereConditions.push('p.category_id = ?');
     queryParams.push(catId);
   }
@@ -51,7 +48,6 @@ async function getProductList(params) {
     const bId = typeof params.brand_id === 'string' 
       ? parseInt(params.brand_id, 10) 
       : params.brand_id;
-    console.log('[DEBUG] Adding brand_id filter:', bId);
     whereConditions.push('p.brand_id = ?');
     queryParams.push(bId);
   }
@@ -60,19 +56,14 @@ async function getProductList(params) {
     const status = typeof params.status === 'string' 
       ? parseInt(params.status, 10) 
       : params.status;
-    console.log('[DEBUG] Adding status filter:', status);
     whereConditions.push('p.status = ?');
     queryParams.push(status);
   }
   
   if (isValidKeyword(params.keyword)) {
-    console.log('[DEBUG] Adding keyword filter:', params.keyword);
     whereConditions.push('p.name LIKE ?');
     queryParams.push(`%${params.keyword.trim()}%`);
   }
-  
-  console.log('[DEBUG] whereClause:', whereConditions.join(' AND '));
-  console.log('[DEBUG] queryParams:', queryParams);
   
   const whereClause = whereConditions.join(' AND ');
   
@@ -105,7 +96,7 @@ async function getProductList(params) {
     LIMIT ? OFFSET ?
   `;
   
-  const dataParams = [...queryParams, parseInt(pageSize), parseInt(offset)];
+  const dataParams = [...queryParams, Number(pageSize), Number(offset)];
   const list = await db.query(dataQuery, dataParams);
   
   const processedList = list.map(item => ({
